@@ -1,0 +1,13 @@
+ports:  
+  web:
+    hostPort: 80
+  websecure:
+    hostPort: 443
+gateway:
+  enabled: true
+  listeners:
+   web:
+     namespacePolicy: All
+providers:
+  kubernetesGateway:
+    enabled: true
