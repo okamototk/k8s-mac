@@ -142,7 +142,7 @@ GPU1:
 ## 参考文献
 
 * [PodmanのコンテナからmacOSのApple Silicon GPUを使ってAIワークロードを高速処理できるようになりました](https://zenn.dev/orimanabu/articles/podman-libkrun-gpu)
- * PodmanのPodでGPUで使えるようになるところまで大変参考にさせて頂きました。
+  * PodmanのPodでGPUで使えるようになるところまで大変参考にさせて頂きました。
 
 * [Kubernetes Generic Device Plugin](https://github.com/squat/generic-device-plugin)
   * このプラグインがなければDevice PluginによるGPUのアタッチは実装できなかったと思います。
