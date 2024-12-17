@@ -76,10 +76,16 @@ resource "null_resource" "create_config" {
     command = var.ingressClass == "traefik" ? "helm upgrade --install traefik traefik/traefik -ntraefik --create-namespace -f config/traefik-values.yaml" : "true"
   }
   provisioner "local-exec" {
+    command = "kubectl apply -f config/metrics-server.yaml"
+  }
+  provisioner "local-exec" {
     command = "kubectl apply -f config/generic-device-plugin.yaml"
   }
   provisioner "local-exec" {
-    command = "sleep 10;kubectl wait --namespace kube-system --for=condition=ready pod --selector=app.kubernetes.io/name=generic-device-plugin --timeout=90s"
+    command = "sleep 5;kubectl wait --namespace kube-system --for=condition=ready pod --selector=k8s-app=metrics-server --timeout=90s"
+  }
+  provisioner "local-exec" {
+    command = "kubectl wait --namespace kube-system --for=condition=ready pod --selector=app.kubernetes.io/name=generic-device-plugin --timeout=90s"
   }
   provisioner "local-exec" {
     command = var.ingressClass == "nginx" ? "kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=90s" : "true"
