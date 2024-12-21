@@ -35,6 +35,14 @@ init/applyで環境に適用
 
 となっているので、スペックが低いMacをご利用の場合は、この辺りの値を小さくしてください。ちなみにollamaを利用することを前提にこの値は設定しています。
 
+## 再起動時の注意
+
+マシンを再起動すると、Kubernetesクラスタが停止します。クラスタを起動するには、Podmanの仮想マシンを起動してKubernetesのコントロールプレーンのコンテナを起動します。
+
+    % podman machine start
+    % podman container start kind-control-plane
+    
+
 ## GPUのPodへのアタッチ
 
 他のデバイスプラグインと同じように、resourcesで指定します。apple.com/gpuでGPUを割り当てることがでますが、デバイスが1しかないので、1個のコンテナにしか割り当てれないことに注意してください。
