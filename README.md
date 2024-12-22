@@ -20,7 +20,7 @@ OpenTofu(Terraformでも可)をインストールする。
 init/applyで環境に適用
 
     % tofu init
-    % tofu apply
+    % tofu apply -var="user_home=$HOME"
 
 これで構築完了。あとは、
 

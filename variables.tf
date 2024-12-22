@@ -22,3 +22,6 @@ variable "ingressClass" {
   description = "Ingress Class Type: 'nginx' or 'traefik'. Use traefik for Gateway API support"
   default     = "traefik"
 }
+
+variable "user_home" {
+}

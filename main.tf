@@ -25,7 +25,7 @@ resource "installer_brew" "krunkit" {
 
 resource "local_file" "containers_conf" {
   source      = "config/containers.conf"
-  filename = "~/.config/containers/containers.conf"
+  filename = "${var.user_home}/.config/containers/containers.conf"
 }
 
 resource "installer_brew" "kind" {
