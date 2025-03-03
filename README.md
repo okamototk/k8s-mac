@@ -131,6 +131,14 @@ GPU1:
         driverUUID         = 6c6c766d-7069-7065-5555-494400000000
 ```
 
+モデルをダウンロードして推論してみる。
+
+    curl -O -L https://huggingface.co/TheBloke/phi-2-GGUF/resolve/main/phi-2.Q4_0.gguf
+    main --temp 0 -m phi-2.Q4_0.gguf -b 512 -ngl 99 -p "test"
+
+
+Activity MonitorでGPUの使用率を見ると、上がっている。
+
 ## ライセンス・利用条件
 
 あんまりどうでもいいと思っていますが、MITライセンスでお願いします。注意点としては、
