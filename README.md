@@ -1,68 +1,84 @@
-﻿# k8s-mac: 誰得Mac上でKubernetesをGPU対応で動作させる環境構築スクリプト
+# k8s-mac: Kubernetes Installer with macOS GPU Support
 
-あとで、英語とかでまともに書き直すかも知れません。
+## Challenge
 
-## これはなに？
+Installing Kubernetes on Apple Silicon Macs while enabling GPU acceleration presents unique challenges. macOS uses the Metal API for GPU access, but Linux containers (the default runtime for Kubernetes on macOS) cannot leverage Metal. This prevents GPU utilization for workloads like AI/ML inference in containers.
 
-Mac(Apple Silicon上)でKubernetes環境を簡単に構築します。特徴は、
+## Solution
 
-* Device PluginによりPodにGPUをアタッチできる
-* Ingress/Gateway APIが標準で利用できるようになっている
+k8s-mac simplifies GPU-enabled Kubernetes setups on Apple Silicon Macs. By automating the installation of required components (including Vulkan API support for GPU passthrough), it allows containers to access the GPU via Vulkan instead of Metal.
 
-です。最近のLLMブームに乗っかって、Macのコンテナ上からGPUを使いたくて作りました。
+## Key Features:
 
-## 動作確認
+1. One-Command Setup: Uses OpenTofu/Terraform for infrastructure provisioning.
 
-OpenTofu(Terraformでも可)をインストールする。
+2. Vulkan GPU Support: Containers leverage the GPU through Vulkan API (compatible with frameworks like llama.cpp and Ollama).
 
-    % brew install opentofu
+3. Native macOS Integration: Works seamlessly with Apple Silicon GPUs (M1/M2/M3/M4).
 
-init/applyで環境に適用
 
-    % tofu init
-    % tofu apply -var="user_home=$HOME"
+## Installation
 
-これで構築完了。あとは、
+### Prerequisites
 
-    % kubectl get all --all-namespaces
+* macOS Ventura or newer (Apple Silicon only).
+* Homebrew installed.
 
-でKubernetesクラスタが動作していることを確認してください。
+### Steps
 
-メモリ、CPU、ディスク容量を変えたい場合は、適当にvariables.tfの内容を変更してください。デフォルトでは、
+Install OpenTofu (recommended) or Terraform:
 
-    vm_memory = 10240 (10GB)
-    vm_cpus = 6
-
-となっているので、スペックが低いMacをご利用の場合は、この辺りの値を小さくしてください。ちなみにollamaを利用することを前提にこの値は設定しています。
-
-## 再起動時の注意
-
-マシンを再起動すると、Kubernetesクラスタが停止します。クラスタを起動するには、Podmanの仮想マシンを起動してKubernetesのコントロールプレーンのコンテナを起動します。
-
-    % podman machine start
-    % podman container start kind-control-plane
-    
-
-## GPUのPodへのアタッチ
-
-他のデバイスプラグインと同じように、resourcesで指定します。apple.com/gpuでGPUを割り当てることがでますが、デバイスが1しかないので、1個のコンテナにしか割り当てれないことに注意してください。
-
-```
-    resources:
-      limits:
-        apple.com/gpu: 1
+```bash
+brew install opentofu
+# OR for Terraform: 
+# brew install terraform
 ```
 
-コンテナは、ARMアーキテクチャのLinuxとして動作します。LinuxではMacでネイティブに利用されているGPUのアクセス機構Metal APIに対応していないので利用することができません。そのため、Vulkan API(Linux)-Metal API(Mac)の変換を内部で行い、LinuxからはVulkan APIでGPUが使えるようになっています。
-GPUの利用はVulkan APIを利用してください。
+Initialize & Deploy:
 
-## 使い方
+```bash
+tofu init   # Use `terraform init` if using Terraform
+tofu apply  # Use `terraform apply` if using Terraform
+```
 
-下記のテストPod用YAMLを用意する。
+### Verify Installation:
 
-#### testpod.yaml
+```bash
+kubectl get all --all-namespaces
+```
+
+### Configuration (Optional)
+Adjust resource allocation in variables.tf (defaults below are suitable for 7B/8B LLMs):
 
 ```
+vm_memory = 10240  # 10GB RAM
+vm_cpus   = 6      # 6 vCPUs
+```
+
+Note: Reduce these values for lower-spec Macs (e.g., vm_cpus = 4 for base M1).
+
+
+## Using the GPU in Pods
+
+To request GPU access, specify apple.com/gpu in your pod’s resource limits:
+
+```yaml
+resources:
+  limits:
+    apple.com/gpu: 1  # Apple Silicon devices have 1 GPU
+```
+
+Important: Only 1 GPU can be allocated per pod (Apple Silicon GPUs are unified).
+
+Containers must use ARM64 Linux images with Vulkan support.
+
+## Example: Validating GPU Access
+
+### Step 1: Deploy a Test Pod
+
+Save this as testpod.yaml:
+
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -78,12 +94,17 @@ spec:
         apple.com/gpu: 1
 ```
 
-デプロイする。
+Apply the pod:
 
-    % kubectl apply -f testpod.yaml
+```bash
+kubectl apply -f testpod.yaml
+```
 
+### Step 2: Verify GPU Detection
 
-下記のコマンドで、「Virtio-GPU Venus (Apple M2)｣という記載があるドライバがあれば正しくGPUがアタッチできている。
+Check the logs for Vulkan GPU details.
+If you find "Virtio-GPU Venus (Apple MX)" by following commands, GPU is working properly on container:
+
 ```
 % kubectl exec -it test -- /bin/bash
 [root@test /]# vulkaninfo --summary
@@ -131,39 +152,27 @@ GPU1:
         driverUUID         = 6c6c766d-7069-7065-5555-494400000000
 ```
 
-モデルをダウンロードして推論してみる。
+That's all. Enjoy it!!!
 
-    curl -O -L https://huggingface.co/TheBloke/phi-2-GGUF/resolve/main/phi-2.Q4_0.gguf
-    main --temp 0 -m phi-2.Q4_0.gguf -b 512 -ngl 99 -p "test"
+## License / Condition
 
+This software is available under MIT license. 
 
-Activity MonitorでGPUの使用率を見ると、上がっている。
+This is not condition but I hope:
 
-## ライセンス・利用条件
+* If you post complain on SNS, please create issue on GitHub. SNS post may not reach to me.
+* If you feel k8s-mac is valuable, let me know. It increase my motivation:)
+* Also if you use k8s-mac for commercial product, let me know. 
 
-あんまりどうでもいいと思っていますが、MITライセンスでお願いします。注意点としては、
+## Reference:
 
-* SNSなどで動かないなどの愚痴を書くくらいなら、GitHubのIssueを上げて頂けると助かります。SNSで呟いても開発者には届きません。
-* あまり利用価値はないと思っていますが、利用価値を感じた方は、お教え頂けるとありがたいです。
-* 商用利用は自由ですが、「こんなことに役立った！」というのを教えて頂けるとありがたいです。
-
-
-## 技術的内容
-
-1. コンテナ環境にはPodmanを利用。ただし、デフォルトではGPUをコンテナで利用できないため、krunkitをインストールし、利用するように設定している。
-2. kindでPodman上にKubernetesクラスタを作成。その際に、Podman用のVM上のGPUデバイスをkindで作成されるコンテナにアタッチする。
-3. Generic Device PluginでGPUデバイスをkind上のPodにアタッチできるようにする。
-4. TraefikによりIngress/Gateway APIをサポート(Nginx IngressにもingressClass変数で変更できる)
-
-## 参考文献
+Mosty Japanese articles. But I would like to put them for showing my appreciate:
 
 * [PodmanのコンテナからmacOSのApple Silicon GPUを使ってAIワークロードを高速処理できるようになりました](https://zenn.dev/orimanabu/articles/podman-libkrun-gpu)
-  * PodmanのPodでGPUで使えるようになるところまで大変参考にさせて頂きました。
+ * PodmanのPodでGPUで使えるようになるところまで大変参考にさせて頂きました。
 
 * [Kubernetes Generic Device Plugin](https://github.com/squat/generic-device-plugin)
   * このプラグインがなければDevice PluginによるGPUのアタッチは実装できなかったと思います。
 
 * [Traefik](https://github.com/traefik/traefik-helm-chart)
   * Ingress/Gateway API対応で利用しました。これ一つで2役こなせる神Proxyです。
-
-
