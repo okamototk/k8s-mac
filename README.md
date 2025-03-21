@@ -30,15 +30,13 @@ Install OpenTofu (recommended) or Terraform:
 
 ```bash
 brew install opentofu
-# OR for Terraform: 
-# brew install terraform
 ```
 
 Initialize & Deploy:
 
 ```bash
-tofu init   # Use `terraform init` if using Terraform
-tofu apply  # Use `terraform apply` if using Terraform
+tofu init
+tofu apply -var="user_home=$HOME"
 ```
 
 ### Verify Installation:
@@ -152,6 +150,13 @@ GPU1:
         driverUUID         = 6c6c766d-7069-7065-5555-494400000000
 ```
 
+Download model and run inference:
+
+```
+% curl -O -L https://huggingface.co/TheBloke/phi-2-GGUF/resolve/main/phi-2.Q4_0.gguf
+% main --temp 0 -m phi-2.Q4_0.gguf -b 512 -ngl 99 -p "test"
+```
+    
 That's all. Enjoy it!!!
 
 ## License / Condition
