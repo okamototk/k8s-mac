@@ -74,7 +74,7 @@ Containers must use ARM64 Linux images with Vulkan support.
 
 ### Step 1: Deploy a Test Pod
 
-Save this as testpod.yaml:
+Save this as [testpod.yaml](sample/llamacpp-test.yaml):
 
 ```yaml
 apiVersion: v1
@@ -84,7 +84,7 @@ metadata:
 spec:
   containers:
   - name: test
-    image: quay.io/slopezpa/fedora-vgpu-llama
+    image: ghcr.io/okamototk/k8s-mac/llama.cpp:latest
     command: [ "/bin/bash", "-c", "--" ]
     args: [ "while true; do sleep 30; done;" ]
     resources:
