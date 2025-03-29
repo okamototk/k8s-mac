@@ -1,0 +1,26 @@
+FROM registry.fedoraproject.org/fedora:40
+
+ENV mesa_version 24.1.5-101
+
+WORKDIR /app
+RUN \
+  dnf install -y dnf-plugins-core gcc gcc-c++ make cmake git vim-enhanced ccache glslc glslang libcurl-devel; \
+  dnf install -y vulkan-loader vulkan-loader-devel vulkan-tools vulkan-headers; \
+  dnf copr enable -y slp/mesa-krunkit ;\
+RUN export mesa_version=24.1.5-101; \
+  dnf install -y mesa-dri-drivers-${mesa_version} mesa-filesystem-${mesa_version} mesa-libOpenCL-${mesa_version} mesa-libgbm-${mesa_version} mesa-libglapi-${mesa_version} mesa-va-drivers-${mesa_version} mesa-vulkan-drivers-${mesa_version}
+
+RUN git clone https://github.com/ggerganov/llama.cpp
+
+WORKDIR /app/llama.cpp
+
+RUN cmake -B build -DGGML_VULKAN=ON -DGGML_NATIVE=OFF DGGML_CPU_ARM_ARCH=native -DLLAMA_CURL=ON
+RUN cmake --build build --config Debug
+RUM cmake --install build
+
+EXPOSE 8080
+
+WORKDIR /root
+
+ENTRYPOINT ["tail", "-f", "/dev/null"]
+
