@@ -70,7 +70,7 @@ Important: Only 1 GPU can be allocated per pod (Apple Silicon GPUs are unified).
 
 Containers must use ARM64 Linux images with Vulkan support.
 
-## Example: Validating GPU Access
+## Validating GPU Access and inference
 
 ### Step 1: Deploy a Test Pod
 
@@ -150,6 +150,7 @@ GPU1:
         driverUUID         = 6c6c766d-7069-7065-5555-494400000000
 ```
 
+### Step 3: Run LLM Model
 Download model and run inference:
 
 ```
