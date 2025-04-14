@@ -166,8 +166,8 @@ GPU1:
 Download model and run inference:
 
 ```
-% curl -O -L https://huggingface.co/TheBloke/phi-2-GGUF/resolve/main/phi-2.Q4_0.gguf
-% main --temp 0 -m phi-2.Q4_0.gguf -b 512 -ngl 99 -p "test"
+% curl -O -L https://huggingface.co/unsloth/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q4_K_M.gguf
+% /app/llama.cpp/build/bin/llama-cli -m Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf -b 512 -ngl 99 -p "How GPU accelerate LLM" 
 ```
     
 That's all. Enjoy it!!!
