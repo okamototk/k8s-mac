@@ -32,11 +32,23 @@ Install OpenTofu (recommended) or Terraform:
 brew install opentofu
 ```
 
+Clone k8s-mac and move directory:
+```bash
+git clone https://github.com/okamototk/k8s-mac
+cd k8s-mac
+```
+
 Initialize & Deploy:
 
 ```bash
 tofu init
 tofu apply -var="user_home=$HOME"
+...
+Do you want to perform these actions?
+  OpenTofu will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes  # Enter "yes" here
 ```
 
 ### Verify Installation:
