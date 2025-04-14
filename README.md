@@ -172,6 +172,18 @@ Download model and run inference:
     
 That's all. Enjoy it!!!
 
+## Tips
+
+### Confirm GPU Usage
+
+Run powermetrics:
+
+```
+sudo powermetrics --samplers gpu_power -i 1000
+```
+
+Or using Monitory Analyzer.
+
 ## License / Condition
 
 This software is available under MIT license. 
