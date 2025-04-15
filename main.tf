@@ -4,13 +4,6 @@ terraform {
       source  = "shihanng/installer"
       version = "~> 0.6.1"
     }
-    kubectl = {
-    source  = "gavinbunney/kubectl"
-      version = "~> 1.17.0"
-    }
-    kubernetes = {
-      source = "hashicorp/kubernetes"
-    }
   }
 }
 
