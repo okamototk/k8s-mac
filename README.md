@@ -19,6 +19,10 @@ k8s-mac simplifies GPU-enabled Kubernetes setups on Apple Silicon Macs. By autom
 
 ## Installation
 
+> [!NOTE]
+> * During installation process, script install podman, krunkit, kind, kubectl and h. If you already have these software, they may update or overwrite.
+> * You may need to remove or stop Docker, Rancher Desktop or such container runtime before install.
+
 ### Prerequisites
 
 * macOS Ventura or newer (Apple Silicon only).
